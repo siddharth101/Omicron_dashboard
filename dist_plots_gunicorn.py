@@ -2,22 +2,6 @@
 Flask + Dash dashboard for exploring SNR and frequency histograms
 with start/end date filtering.
 
-Inspired by the user's Gravity Spy dashboard scripts.
-
-Usage
------
-1) Put your CSV (with columns including: 'dates', 'snr', 'frequency') somewhere local.
-2) Either set env var DATA_PATH=/path/to/your.csv or pass --data /path/to/your.csv.
-3) Run:  python app.py --debug  (or omit --debug for production-like)
-4) Visit http://127.0.0.1:8050
-
-Notes
------
-- The 'dates' column may be string (YYYY-MM-DD) or datetime. This script parses it.
-- The app renders two histograms (SNR and frequency) side-by-side.
-- Includes controls for date range and number of bins.
-- Works smoothly with large CSVs using pandas categorical downcast and optional feather/parquet.
-"""
 from __future__ import annotations
 
 import os
@@ -36,17 +20,11 @@ import plotly.express as px
 # -------------------------------
 
 def _coerce_dates(s: pd.Series) -> pd.Series:
-    """Coerce a 'dates' series to pandas datetime.date (no time-of-day).
-    Accepts str like 'YYYY-MM-DD' or already-datetime.
-    """
     dt = pd.to_datetime(s, errors="coerce", utc=False)
     return dt.dt.date
 
 
 def load_dataframe(path: str) -> pd.DataFrame:
-    """Load the dataframe from CSV/Parquet/Feather and normalize columns.
-    Required columns: 'dates', 'snr', 'frequency'. Others are ignored.
-    """
     if not os.path.exists(path):
         raise FileNotFoundError(f"Data file not found: {path}")
 
