@@ -1,0 +1,46 @@
+name: dash_env
+channels:
+  - conda-forge
+channel_priority: strict
+dependencies:
+  # Core
+  - python=3.9
+  - numpy=1.26.*
+  - pandas=2.2.*
+  - scipy
+  - matplotlib
+  - pillow
+  - plotly
+  - ipykernel
+
+  # Dashboard / web
+  - dash>=2.14,<3
+  - flask>=2.2,<4
+  - werkzeug>=2.2,<3
+  - flask-compress
+
+  # LIGO / control
+  - gwpy=2.1.*
+  - python-control  # conda-forge name for "control"
+
+  # Performance helpers (optional but common in your stack)
+  - bottleneck
+  - numexpr
+
+  # Dev tools (optional)
+  - black
+  - flake8
+  - autopep8
+  - pylint
+  - jupyter
+  - typeguard
+  - pyyaml
+  - wtforms
+
+  - pip
+  - pip:
+      - googlesearch-python==1.2.5
+      - pipreqs==0.5.0
+      # (If you rely on the legacy split dash packages, you do NOT need them with Dash>=2:
+      #  dash-core-components, dash-html-components, dash-table, dash-renderer are bundled.)
+
