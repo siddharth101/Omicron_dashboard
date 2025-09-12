@@ -1,6 +1,6 @@
 """
 Flask + Dash dashboard for exploring SNR and frequency histograms
-with start/end date filtering.
+with start/end date filtering."""
 
 from __future__ import annotations
 
@@ -181,7 +181,6 @@ colors = {'L1':{'snr':'dodgerblue', 'frequency':'mediumpurple'},
            'H1':{'snr':'orangered', 'frequency':'lightcoral'}}
 @lru_cache(maxsize=256)
 def _filter_key(start: str, end: str) -> tuple[date, date]:
-    """Cache-friendly key by converting to date objects."""
     s = pd.to_datetime(start).date() if start else MIN_DATE
     e = pd.to_datetime(end).date() if end else MAX_DATE
     return s, e
