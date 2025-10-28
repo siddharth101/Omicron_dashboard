@@ -6,8 +6,10 @@ from __future__ import annotations
 
 import os
 import argparse
+import math
 from datetime import date
 from functools import lru_cache
+import plotly.graph_objects as go
 
 import pandas as pd
 
@@ -109,8 +111,9 @@ except Exception as e:
     })
 
 #print(DF)
-
-
+thresh = True
+if thresh:
+    DF = DF[DF['snr']>7.5]
 
 MIN_DATE: date = DF["dates"].min()
 MAX_DATE: date = DF["dates"].max()
@@ -160,10 +163,13 @@ app.layout = html.Div(
         html.Div(
             style={"display": "grid", "gridTemplateColumns": "1fr 1fr", "gridTemplateRows": "auto auto", "gap": "1rem", "marginTop": "1rem"},
             children=[
-                dcc.Graph(id="hist-snr-1", config={"displayModeBar": True}),       # SNR 0–200
-                dcc.Graph(id="hist-frequency-1", config={"displayModeBar": True}), # Freq 0–100 Hz
+                dcc.Graph(id="hist-snr-0", config={"displayModeBar": True}),       # SNR 6–20
+                dcc.Graph(id="hist-snr-1", config={"displayModeBar": True}),       # SNR 20–200
                 dcc.Graph(id="hist-snr-2", config={"displayModeBar": True}),       # SNR 200–4000
+                dcc.Graph(id="hist-frequency-1", config={"displayModeBar": True}), # Freq 0–100 Hz
                 dcc.Graph(id="hist-frequency-2", config={"displayModeBar": True}), # Freq 100–200 Hz
+                #dcc.Graph(id="scatter-freq-time", config={"displayModeBar": True}),  # Freq vs Time (color=SNR)
+
             ],
         ),
         html.Hr(),
@@ -196,10 +202,12 @@ from plotly import graph_objects as go
 
 @app.callback(
     [
+        Output("hist-snr-0", "figure"),
         Output("hist-snr-1", "figure"),
         Output("hist-snr-2", "figure"),
         Output("hist-frequency-1", "figure"),
         Output("hist-frequency-2", "figure"),
+        #Output("scatter-freq-time", "figure"),
         Output("record-count", "children"),
         Output("meta-info", "children"),
     ],
@@ -232,19 +240,74 @@ def update_plots(start_date, end_date, _bins_unused, logy_values):
             fig.update_yaxes(type="log")
         return fig
 
+
+    # def make_scatter_time_freq(df, title, x_title, y_title, s, e, colorbar_title="SNR"):
+    #     # Ensure 'date' is datetime
+    #     dcol = "dates"
+    #     if not pd.api.types.is_datetime64_any_dtype(df[dcol]):
+    #         df = df.copy()
+    #         df[dcol] = pd.to_datetime(df[dcol])
+
+    #     # Tick spacing rule: 1/10 of range, minimum 1 day
+    #     range_days = max((e - s).days, 1)
+    #     step_days = max(1, int(math.ceil(range_days / 10.0)))
+    #     # Plotly time dtick is in milliseconds
+    #     dtick_ms = step_days * 24 * 60 * 60 * 1000
+
+
+    #     fig = go.Figure()
+    #     fig.add_trace(
+    #         go.Scattergl(
+    #             x=df[dcol],
+    #             y=df["frequency"],
+    #             mode="markers",
+    #             marker=dict(
+    #                 size=6,
+    #                 color=df["snr"],
+    #                 colorscale="Viridis",
+    #                 showscale=True,
+    #                 colorbar=dict(title=colorbar_title),
+    #             ),
+    #         )
+    #     )
+    #     fig.update_layout(
+    #         title=title,
+    #         xaxis_title=x_title,
+    #         yaxis_title=y_title,
+    #         bargap=0.1,  # keeps layout consistent with your hist fig defaults
+    #     )
+    #     fig.update_xaxes(range=[pd.to_datetime(s), pd.to_datetime(e)], dtick=dtick_ms)
+    #     return fig
+
+
+
+
     # SNR
+    if thresh:
+        fig_snr_0 = make_hist(
+            dff["snr"],
+            "SNR Distribution (7.5–20)",
+            "SNR",
+            7.5, 20, 2.5, color=colors[ifo]['snr']
+        )
+    else:
+        fig_snr_0 = make_hist(
+            dff["snr"],
+            "SNR Distribution (6–20)",
+            "SNR",
+            6, 20, 2, color=colors[ifo]['snr']
+        )
+
     fig_snr_1 = make_hist(
         dff["snr"],
-        "SNR Distribution (6–200)",
+        "SNR Distribution (20–200)",
         "SNR",
-        0, 200, 20, color=colors[ifo]['snr']
-    )
+        20, 200, 20, color=colors[ifo]['snr'])
     fig_snr_2 = make_hist(
         dff["snr"],
         "SNR Distribution (200–4000)",
         "SNR",
-        200, 4000, 200, color=colors[ifo]['snr']
-    )
+        200, 4000, 200, color=colors[ifo]['snr'])
 
     # Frequency
     fig_freq_1 = make_hist(
@@ -261,6 +324,14 @@ def update_plots(start_date, end_date, _bins_unused, logy_values):
     )
 
     s, e = _filter_key(str(start_date), str(end_date))
+
+    # fig_scatter = make_scatter_time_freq(
+    # dff,
+    # "Frequency vs Time (color=SNR)",
+    # "Date",
+    # "Frequency [Hz]",
+    # s, e)
+
     info = (
         #f"Data path: {os.path.abspath(args.data_path)}\n"
         f"Data path: {data_file}\n"
@@ -270,7 +341,7 @@ def update_plots(start_date, end_date, _bins_unused, logy_values):
     )
     count_txt = f"Showing {len(dff):,} rows"
 
-    return fig_snr_1, fig_snr_2, fig_freq_1, fig_freq_2, count_txt, info
+    return fig_snr_0, fig_snr_1, fig_snr_2, fig_freq_1, fig_freq_2, count_txt, info
 
 
 if __name__ == "__main__":
