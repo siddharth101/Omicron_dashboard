@@ -235,7 +235,7 @@ def update_plots(start_date, end_date, _bins_unused, logy_values):
     # SNR
     fig_snr_1 = make_hist(
         dff["snr"],
-        "SNR Distribution (0–200)",
+        "SNR Distribution (6–200)",
         "SNR",
         0, 200, 20, color=colors[ifo]['snr']
     )
