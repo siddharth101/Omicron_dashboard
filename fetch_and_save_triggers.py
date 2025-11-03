@@ -16,8 +16,8 @@ trigs_L1 = fetch_trigs(tstart_L1, tend_L1, 'L1')
 trigs_L1 = trigs_L1[trigs_L1['time'] > tstart_L1]
 
 if trigs_L1 is not None and len(trigs_L1) > 0:
-    print(tstart_L1)
-    print(list(trigs_L1['time']))
+    # print(tstart_L1)
+    # print(list(trigs_L1['time']))
     # Append to the old file
     trigs_L1.to_csv('data/O4_L1.csv', mode='a', index=False, header=False)
     print(f"Appended {len(trigs_L1)} rows to data/O4_L1.csv")
@@ -28,8 +28,8 @@ trigs_H1 = fetch_trigs(tstart_H1, tend_H1, 'H1')
 trigs_H1 = trigs_H1[trigs_H1['time']>tstart_H1]
 
 if trigs_H1 is not None and len(trigs_H1) > 0:
-    print(tstart_H1)
-    print(list(trigs_H1['time']))
+    # print(tstart_H1)
+    # print(list(trigs_H1['time']))
     trigs_H1.to_csv('data/O4_H1.csv', mode='a', index=False, header=False)
     print(f"Appended {len(trigs_H1)} rows to data/O4_H1.csv")
 else:
