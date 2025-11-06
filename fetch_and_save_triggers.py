@@ -1,4 +1,4 @@
-from utils import fetch_trigs, max_time_from_csv, remove_duplicates
+from utils import fetch_trigs, max_time_from_csv, remove_duplicates, convert_to_parquet
 import pandas as pd
 import gwpy
 import time
@@ -39,3 +39,7 @@ else:
 # Check for duplicates
 remove_duplicates('data/O4_L1.csv')
 remove_duplicates('data/O4_H1.csv')
+
+# Convert to parquet
+convert_to_parquet('data/O4_L1.csv')
+convert_to_parquet('data/O4_H1.csv')

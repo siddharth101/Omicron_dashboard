@@ -97,7 +97,8 @@ ifo = args.ifo
 # else:
 #     data_file = f"data/{args.ifo}_data.csv"
 
-data_file = f"data/O4_{args.ifo}.csv"
+#data_file = f"data/O4_{args.ifo}.csv"
+data_file = f"data/O4_{args.ifo}.parquet"
 
 # Load data
 try:

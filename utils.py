@@ -21,7 +21,7 @@ def fetch_trigs(start_time, end_time, ifo):
         trigs.drop(['phase', 'q', 'tstart', 'tend', 'fstart', 'fend'], axis=1, inplace=True)
 
         trigs['dates'] = trigs['time'].apply(lambda t: from_gps(t).strftime('%Y-%m-%d'))
-        trigs = trigs[['time', 'frequency', 'snr', 'amplitude', 'bandwidth', 'duration', 'dates']]
+        trigs = trigs[['time', 'frequency', 'snr', 'bandwidth', 'duration', 'dates']]
         trigs.reset_index(drop=True, inplace=True)
 
     except Exception as e:
@@ -62,6 +62,16 @@ def remove_duplicates(path, col="time"):
 
     return
 
+def convert_to_parquet(path):
+
+    print("Reading file")
+    df = pd.read_csv(path)
+
+    print("Converting file")
+    new_path = path.replace('csv', 'parquet')
+    df.to_parquet(new_path, compression="zstd")
+
+    print("Done")
 
 
 
