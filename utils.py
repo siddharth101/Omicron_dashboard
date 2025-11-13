@@ -2,6 +2,7 @@ from gwtrigfind import find_trigger_files
 from gwpy.time import to_gps, from_gps
 from gwpy.table import EventTable
 import pandas as pd
+from datetime import date
 
 def _coerce_dates(s: pd.Series) -> pd.Series:
     """

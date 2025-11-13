@@ -16,7 +16,7 @@ import pandas as pd
 from flask import Flask
 from dash import Dash, dcc, html, Input, Output, State, callback_context
 import plotly.express as px
-from utils import _corce_dates, load_dataframe, _filter_key, filter_df
+from dashboard_utils import _coerce_dates, load_dataframe, _filter_key, filter_df
 # -------------------------------
 # Config & Data Loading
 # -------------------------------
@@ -172,7 +172,7 @@ colors = {'L1':{'snr':'dodgerblue', 'frequency':'mediumpurple'},
 
 
 def update_plots(start_date, end_date, _bins_unused, logy_values):
-    dff = filter_df(start_date, end_date)
+    dff = filter_df(DF, start_date, end_date)
     log_y = "log" in (logy_values or [])
 
     def make_hist(x, title, x_title, x_start, x_end, x_step, color='dodgerblue'):
@@ -274,8 +274,7 @@ def update_plots(start_date, end_date, _bins_unused, logy_values):
         100, 2000, 100, color=colors[ifo]['frequency']
     )
 
-    s, e = _filter_key(str(start_date), str(end_date))
-
+    s, e = _filter_key(DF, str(start_date), str(end_date))
     # fig_scatter = make_scatter_time_freq(
     # dff,
     # "Frequency vs Time (color=SNR)",
