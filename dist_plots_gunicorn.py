@@ -16,51 +16,10 @@ import pandas as pd
 from flask import Flask
 from dash import Dash, dcc, html, Input, Output, State, callback_context
 import plotly.express as px
-
+from utils import _corce_dates, load_dataframe, _filter_key, filter_df
 # -------------------------------
 # Config & Data Loading
 # -------------------------------
-
-def _coerce_dates(s: pd.Series) -> pd.Series:
-    dt = pd.to_datetime(s, errors="coerce", utc=False)
-    return dt.dt.date
-
-
-def load_dataframe(path: str) -> pd.DataFrame:
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Data file not found: {path}")
-
-    ext = os.path.splitext(path)[1].lower()
-    if ext in (".parquet", ".pq"):
-        df = pd.read_parquet(path)
-    elif ext in (".feather", ".ft"):
-        df = pd.read_feather(path)
-    else:
-        # default assume CSV
-        df = pd.read_csv(path)
-
-    # Normalize required columns
-    required = {"dates", "snr", "frequency"}
-    missing = required - set(df.columns)
-    if missing:
-        raise ValueError(f"Missing required columns: {sorted(missing)}")
-
-    df = df.copy()
-    df["dates"] = _coerce_dates(df["dates"])  # -> datetime.date
-
-    # Downcast numerics to save memory for large files
-    for col in ("snr", "frequency"):
-        if pd.api.types.is_float_dtype(df[col]):
-            df[col] = pd.to_numeric(df[col], downcast="float")
-        elif pd.api.types.is_integer_dtype(df[col]):
-            df[col] = pd.to_numeric(df[col], downcast="integer")
-        else:
-            # attempt to coerce
-            df[col] = pd.to_numeric(df[col], errors="coerce")
-
-    # Drop rows that failed coercion
-    df = df.dropna(subset=["dates", "snr", "frequency"]).reset_index(drop=True)
-    return df
 
 
 # CLI args
@@ -187,19 +146,10 @@ app.layout = html.Div(
 colors = {'L1':{'snr':'dodgerblue', 'frequency':'mediumpurple'},
            'H1':{'snr':'orangered', 'frequency':'lightcoral'}}
 @lru_cache(maxsize=256)
-def _filter_key(start: str, end: str) -> tuple[date, date]:
-    s = pd.to_datetime(start).date() if start else MIN_DATE
-    e = pd.to_datetime(end).date() if end else MAX_DATE
-    return s, e
 
 
-def filter_df(start_date: str | None, end_date: str | None) -> pd.DataFrame:
-    s, e = _filter_key(str(start_date), str(end_date))
-    mask = (DF["dates"] >= s) & (DF["dates"] <= e)
-    return DF.loc[mask]
 
 
-from plotly import graph_objects as go
 
 @app.callback(
     [
